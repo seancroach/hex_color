@@ -1,11 +1,18 @@
-hex_color
-=========
+# hex_color
 
 A Rust library for parsing, serializing, and operating on hex colors.
 
+[![Build Status]][actions]
+[![Latest Version]][crates.io]
+
+[Build Status]: https://img.shields.io/github/workflow/status/seancroach/hex_color/ci?logo=github
+[actions]: https://github.com/seancroach/hex_color/actions/workflows/ci.yml
+[Latest Version]: https://img.shields.io/crates/v/hex_color?logo=rust
+[crates.io]: https://crates.io/crates/hex_color
+
 ### Documentation
 
-[Module documentation with examples](https://docs.rs/regex-syntax). The module documentation also
+[Module documentation with examples](https://docs.rs/hex_color). The module documentation also
 includes a comprehensive description of the syntax supported for parsing hex colors.
 
 ### Usage
@@ -34,10 +41,10 @@ fn main() {
 
 Licensed under either of
 
-* Apache License, Version 2.0
-  ([LICENSE-APACHE](LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
-* MIT license
-  ([LICENSE-MIT](LICENSE-MIT) or http://opensource.org/licenses/MIT)
+-   Apache License, Version 2.0
+    ([LICENSE-APACHE](LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
+-   MIT license
+    ([LICENSE-MIT](LICENSE-MIT) or http://opensource.org/licenses/MIT)
 
 at your option.
 
