@@ -32,7 +32,7 @@ use hex_color::HexColor;
 
 fn main() {
     let s = "#789ABC";
-    let color: HexColor = s.parse();
+    let color: HexColor = s.parse().unwrap();
     println!("rgb({}, {}, {})", color.r, color.g, color.b);
 }
 ```
