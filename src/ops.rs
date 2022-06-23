@@ -44,16 +44,27 @@ macro_rules! forward_ref_op_assign {
     };
 }
 
+fn alpha_op(self_a: Option<u8>, other_a: Option<u8>, op: impl FnOnce(u8, u8) -> u8) -> Option<u8> {
+    if let None = other_a {
+        return self_a;
+    }
+    match self_a {
+        Some(a) => Some(op(a, other_a.expect("Should never panic."))),
+        None => None,
+    }
+}
+
 impl Add for HexColor {
     type Output = HexColor;
 
     #[inline]
     fn add(self, other: Self) -> Self::Output {
-        HexColor::new(
-            u8::saturating_add(self.r, other.r),
-            u8::saturating_add(self.g, other.g),
-            u8::saturating_add(self.b, other.b),
-        )
+        HexColor {
+            r: u8::saturating_add(self.r, other.r),
+            g: u8::saturating_add(self.g, other.g),
+            b: u8::saturating_add(self.b, other.b),
+            a: alpha_op(self.a, other.a, |a, o| u8::saturating_add(a, o)),
+        }
     }
 }
 
@@ -75,11 +86,16 @@ macro_rules! add_impl {
 
             #[inline]
             fn add(self, other: $t) -> Self::Output {
-                HexColor::new(
-                    (self.r as $t + other).clamp(u8::MIN as $t, u8::MAX as $t) as u8,
-                    (self.g as $t + other).clamp(u8::MIN as $t, u8::MAX as $t) as u8,
-                    (self.b as $t + other).clamp(u8::MIN as $t, u8::MAX as $t) as u8,
-                )
+                let calc = |s: u8| (s as $t + other).clamp(u8::MIN as $t, u8::MAX as $t) as u8;
+                HexColor{
+                    r: calc(self.r),
+                    g: calc(self.g),
+                    b: calc(self.b),
+                    a: match self.a {
+                        Some(a) => Some(calc(a)),
+                        None => None
+                    },
+                }
             }
         }
 
@@ -113,11 +129,12 @@ impl Sub for HexColor {
 
     #[inline]
     fn sub(self, other: Self) -> Self::Output {
-        HexColor::new(
-            u8::saturating_sub(self.r, other.r),
-            u8::saturating_sub(self.g, other.g),
-            u8::saturating_sub(self.b, other.b),
-        )
+        HexColor {
+            r: u8::saturating_sub(self.r, other.r),
+            g: u8::saturating_sub(self.g, other.g),
+            b: u8::saturating_sub(self.b, other.b),
+            a: alpha_op(self.a, other.a, |a, o| u8::saturating_sub(a, o)),
+        }
     }
 }
 
@@ -139,11 +156,16 @@ macro_rules! sub_impl {
 
             #[inline]
             fn sub(self, other: $t) -> Self::Output {
-                HexColor::new(
-                    (self.r as $t - other).clamp(u8::MIN as $t, u8::MAX as $t) as u8,
-                    (self.g as $t - other).clamp(u8::MIN as $t, u8::MAX as $t) as u8,
-                    (self.b as $t - other).clamp(u8::MIN as $t, u8::MAX as $t) as u8,
-                )
+                let calc = |s|(s as $t - other).clamp(u8::MIN as $t, u8::MAX as $t) as u8;
+                HexColor{
+                    r: calc(self.r),
+                    g: calc(self.g),
+                    b: calc(self.b),
+                    a: match self.a {
+                        Some(a) => Some(calc(a)),
+                        None => None
+                    }
+                }
             }
         }
 
@@ -179,11 +201,16 @@ macro_rules! mul_impl {
 
             #[inline]
             fn mul(self, other: $t) -> Self::Output {
-                HexColor::new(
-                    (self.r as $t * other).clamp(u8::MIN as $t, u8::MAX as $t) as u8,
-                    (self.g as $t * other).clamp(u8::MIN as $t, u8::MAX as $t) as u8,
-                    (self.b as $t * other).clamp(u8::MIN as $t, u8::MAX as $t) as u8,
-                )
+               let calc = |s|(s as $t * other).clamp(u8::MIN as $t, u8::MAX as $t) as u8;
+                HexColor{
+                    r: calc(self.r),
+                    g: calc(self.g),
+                    b: calc(self.b),
+                    a: match self.a {
+                        Some(a) => Some(calc(a)),
+                        None => None
+                    }
+                }
             }
         }
 
@@ -219,11 +246,16 @@ macro_rules! div_impl {
 
             #[inline]
             fn div(self, other: $t) -> Self::Output {
-                HexColor::new(
-                    (self.r as $t / other).clamp(u8::MIN as $t, u8::MAX as $t) as u8,
-                    (self.g as $t / other).clamp(u8::MIN as $t, u8::MAX as $t) as u8,
-                    (self.b as $t / other).clamp(u8::MIN as $t, u8::MAX as $t) as u8
-                )
+                let calc = |s|(s as $t / other).clamp(u8::MIN as $t, u8::MAX as $t) as u8;
+                HexColor{
+                    r: calc(self.r),
+                    g: calc(self.g),
+                    b: calc(self.b),
+                    a: match self.a {
+                        Some(a) => Some(calc(a)),
+                        None => None
+                    }
+                }
             }
         }
 
@@ -246,10 +278,21 @@ div_impl! { usize u8 u16 u32 u64 u128 isize i8 i16 i32 i64 i128 f32 f64 }
 mod tests {
     use super::*;
 
-    const ZERO: HexColor = HexColor::new(0, 0, 0);
-    const ONE: HexColor = HexColor::new(1, 1, 1);
-    const TWO: HexColor = HexColor::new(2, 2, 2);
-    const MAX: HexColor = HexColor::new(255, 255, 255);
+    extern crate test_case;
+    use test_case::test_case;
+
+    const ZERO: HexColor = HexColor::rgb(0, 0, 0);
+    const ONE: HexColor = HexColor::rgb(1, 1, 1);
+    const TWO: HexColor = HexColor::rgb(2, 2, 2);
+    const MAX: HexColor = HexColor::rgb(255, 255, 255);
+
+    #[test_case(Some(2),   Some(3),   Some(2+3); "Calculate")]
+    #[test_case(Some(100), None,      Some(100); "Same as left")]
+    #[test_case(None,      None,      None;      "None")]
+    #[test_case(None,      Some(100), None;      "Always None")]
+    fn alha_op_no_panic(a: Option<u8>, b: Option<u8>, r: Option<u8>) {
+        assert_eq!(alpha_op(a, b, |a, b| a + b), r);
+    }
 
     #[test]
     fn add_hex() {
