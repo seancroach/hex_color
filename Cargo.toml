@@ -1,33 +1,33 @@
 [package]
 name = "hex_color"
-version = "1.0.0" # update html_root_url in src/lib.rs
+version = "2.0.0" # update html_root_url in src/lib.rs and README.md
+
 authors = ["Sean C. Roach <me@seancroach.dev>"]
-edition = "2018"
-description = "A Rust library for parsing, serializing, and operating on hex colors."
+categories = ["graphics", "multimedia::images", "no-std"]
+description = "A simple, lightweight library for working with RGB(A) hexadecimal colors."
+edition = "2021"
+keywords = ["color", "hex", "rgb", "rgba"]
+license = "MIT OR Apache-2.0"
 readme = "README.md"
 repository = "https://github.com/seancroach/hex_color"
-license = "MIT OR Apache-2.0"
-keywords = ["color", "hex"]
-categories = ["data-structures"]
-include = [
-    "src/**/*",
-    "LICENSE-APACHE",
-    "LICENSE-MIT",
-    "README.md"
-]
 
-[[test]]
-name = "serde"
-path = "tests/serde.rs"
-required-features = ["serde"]
+[features]
+default = ["std"]
+
+rand = ["dep:rand"]
+serde = ["dep:serde", "dep:arrayvec"]
+std = ["rand?/std", "rand?/std_rng"]
 
 [dependencies]
-lazy_static = "1.4"
-regex = "1.5"
-
-serde = { version = "1.0", optional = true }
+arrayvec = { version = "0.7", optional = true, default-features = false }
+rand = { version = "0.8", optional = true, default-features = false }
+serde = { version = "1.0", optional = true, default-features = false }
 
 [dev-dependencies]
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 version-sync = "0.9"
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "doc_cfg"]
