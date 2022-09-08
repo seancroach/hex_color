@@ -310,7 +310,7 @@ impl HexColor {
     /// assert_eq!(HexColor::achromatic(128), HexColor::rgb(128, 128, 128));
     /// ```
     ///
-    /// *Note*: There is no "achromatic_alpha" constructor or similar method.
+    /// *Note*: There is no "`achromatic_alpha`" constructor or similar method.
     /// Instead, it's advised to chain [`HexColor::achromatic`] with
     /// [`HexColor::with_a`]:
     ///
@@ -1440,6 +1440,18 @@ impl HexColor {
         } else {
             Some(HexColor::rgb(r1 / r2, g1 / g2, b1 / b2))
         }
+    }
+
+    ////////////////////////////////////////////////////////////////////////////
+    // "Complex" operations
+    ////////////////////////////////////////////////////////////////////////////
+
+    /// Inverts the [`HexColor`].
+    #[inline]
+    #[must_use]
+    pub const fn invert(self) -> HexColor {
+        let (r, g, b, a) = self.split();
+        HexColor::rgba(0xFF - r, 0xFF - g, 0xFF - b, a)
     }
 }
 
