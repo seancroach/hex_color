@@ -1446,7 +1446,15 @@ impl HexColor {
     // "Complex" operations
     ////////////////////////////////////////////////////////////////////////////
 
-    /// Inverts the [`HexColor`].
+    /// Linearly inverts the [`HexColor`].
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use hex_color::HexColor;
+    ///
+    /// assert_eq!(HexColor::RED.invert(), HexColor::CYAN);
+    /// ```
     #[inline]
     #[must_use]
     pub const fn invert(self) -> HexColor {
