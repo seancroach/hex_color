@@ -35,5 +35,6 @@ jobs:
           toolchain: nightly
       - uses: actions-rs/cargo@v1
         with:
+          toolchain: nightly
           command: rustdoc
           args: --all-features -- --cfg doc_cfg
