@@ -1464,6 +1464,35 @@ impl HexColor {
     // "Complex" operations
     ////////////////////////////////////////////////////////////////////////////
 
+    /// Scales the `r`, `g`, and `b` components of the [`HexColor`] by `f`.
+    ///
+    /// The alpha component is ignore entirely, but is preserved in the
+    /// resulting color.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use hex_color::HexColor;
+    ///
+    /// let amber = HexColor::from_u24(0xFFBF00);
+    ///
+    /// let lighter_amber = amber.scale(1.1); // 10% lighter (rounded)
+    /// assert_eq!(lighter_amber, HexColor::from_u24(0xFFD200));
+    ///
+    /// let darker_amber = amber.scale(0.9); // 10% darker (rounded)
+    /// assert_eq!(darker_amber, HexColor::from_u24(0xE6AC00));
+    /// ```
+    #[inline]
+    #[must_use]
+    #[track_caller]
+    pub fn scale(self, f: f32) -> Self {
+        let (r, g, b, a) = self.split_rgba();
+        let r = (f32::from(r) * f).min(255.0).round() as u8;
+        let g = (f32::from(g) * f).min(255.0).round() as u8;
+        let b = (f32::from(b) * f).min(255.0).round() as u8;
+        HexColor::rgba(r, g, b, a)
+    }
+
     /// Linearly inverts the [`HexColor`].
     ///
     /// # Examples
@@ -1562,6 +1591,62 @@ impl MulAssign for HexColor {
     #[inline]
     #[track_caller]
     fn mul_assign(&mut self, rhs: Self) {
+        *self = *self * rhs;
+    }
+}
+
+impl Mul<f32> for HexColor {
+    type Output = HexColor;
+
+    #[inline]
+    #[track_caller]
+    fn mul(self, rhs: f32) -> Self::Output {
+        self.scale(rhs)
+    }
+}
+
+impl Mul<HexColor> for f32 {
+    type Output = HexColor;
+
+    #[inline]
+    #[track_caller]
+    fn mul(self, rhs: HexColor) -> Self::Output {
+        rhs.scale(self)
+    }
+}
+
+impl MulAssign<f32> for HexColor {
+    #[inline]
+    #[track_caller]
+    fn mul_assign(&mut self, rhs: f32) {
+        *self = *self * rhs;
+    }
+}
+
+impl Mul<f64> for HexColor {
+    type Output = HexColor;
+
+    #[inline]
+    #[track_caller]
+    fn mul(self, rhs: f64) -> Self::Output {
+        self.scale(rhs as f32)
+    }
+}
+
+impl Mul<HexColor> for f64 {
+    type Output = HexColor;
+
+    #[inline]
+    #[track_caller]
+    fn mul(self, rhs: HexColor) -> Self::Output {
+        rhs * self
+    }
+}
+
+impl MulAssign<f64> for HexColor {
+    #[inline]
+    #[track_caller]
+    fn mul_assign(&mut self, rhs: f64) {
         *self = *self * rhs;
     }
 }
