@@ -177,7 +177,7 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 // hex_color types in rustdoc of other crates get linked to here
-#![doc(html_root_url = "https://docs.rs/hex_color/2.0.0")]
+#![doc(html_root_url = "https://docs.rs/hex_color/2.1.0")]
 #![cfg_attr(doc_cfg, feature(doc_cfg))]
 #![deny(missing_docs)]
 #![deny(clippy::pedantic)]

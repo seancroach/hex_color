@@ -1,6 +1,6 @@
 [package]
 name = "hex_color"
-version = "2.0.0" # update html_root_url in src/lib.rs and README.md
+version = "2.1.0" # update html_root_url in src/lib.rs and README.md
 
 authors = ["Sean C. Roach <me@seancroach.dev>"]
 categories = ["data-structures", "graphics", "multimedia::images", "no-std"]

@@ -5,7 +5,7 @@ A simple, lightweight library for working with RGB(A) hexadecimal colors.
 [![Build Status]][actions]
 [![Latest Version]][crates.io]
 
-[Build Status]: https://img.shields.io/github/workflow/status/seancroach/hex_color/ci?logo=github
+[Build Status]: https://img.shields.io/github/actions/workflow/status/seancroach/hex_color/ci.yml?logo=github
 [actions]: https://github.com/seancroach/hex_color/actions/workflows/ci.yml
 [Latest Version]: https://img.shields.io/crates/v/hex_color?logo=rust
 [crates.io]: https://crates.io/crates/hex_color
