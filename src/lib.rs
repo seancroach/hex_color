@@ -642,22 +642,10 @@ impl HexColor {
     #[inline]
     #[track_caller]
     pub const fn from_u24(n: u32) -> HexColor {
-        #[cfg(target_endian = "big")]
-        #[must_use]
-        const fn inner(v: u32) -> HexColor {
-            let [_, r, g, b] = v.to_be_bytes();
-            HexColor::rgb(r, g, b)
-        }
-
-        #[cfg(target_endian = "little")]
-        #[must_use]
-        const fn inner(v: u32) -> HexColor {
-            let [b, g, r, _] = v.to_le_bytes();
-            HexColor::rgb(r, g, b)
-        }
-
         debug_assert!(n <= 0x00FF_FFFF);
-        inner(n)
+
+        let [_, r, g, b] = n.to_be_bytes();
+        HexColor::rgb(r, g, b)
     }
 
     /// Converts any `u32` to an RGBA value.
@@ -681,21 +669,8 @@ impl HexColor {
     #[must_use]
     #[inline]
     pub const fn from_u32(v: u32) -> HexColor {
-        #[cfg(target_endian = "big")]
-        #[must_use]
-        const fn inner(v: u32) -> HexColor {
-            let [r, g, b, a] = v.to_ne_bytes();
-            HexColor::rgba(r, g, b, a)
-        }
-
-        #[cfg(target_endian = "little")]
-        #[must_use]
-        const fn inner(v: u32) -> HexColor {
-            let [a, b, g, r] = v.to_ne_bytes();
-            HexColor::rgba(r, g, b, a)
-        }
-
-        inner(v)
+        let [r, g, b, a] = v.to_be_bytes();
+        HexColor::rgba(r, g, b, a)
     }
 
     /// Converts a `HexColor` into a `u32` in the range `0x000000..=0xFFFFFF`,
@@ -721,23 +696,8 @@ impl HexColor {
     #[inline]
     #[must_use]
     pub const fn to_u24(self) -> u32 {
-        // This isn't needed:
-
-        #[cfg(target_endian = "big")]
-        #[must_use]
-        const fn inner(color: HexColor) -> u32 {
-            let (r, g, b, _) = color.split();
-            u32::from_ne_bytes([0x00, r, g, b])
-        }
-
-        #[cfg(target_endian = "little")]
-        #[must_use]
-        const fn inner(color: HexColor) -> u32 {
-            let (r, g, b, _) = color.split();
-            u32::from_ne_bytes([b, g, r, 0x00])
-        }
-
-        inner(self)
+        let (r, g, b) = self.split_rgb();
+        u32::from_be_bytes([0x00, r, g, b])
     }
 
     /// Converts a `HexColor` into a `u32`.
@@ -762,23 +722,8 @@ impl HexColor {
     #[must_use]
     #[inline]
     pub const fn to_u32(self) -> u32 {
-        // This isn't needed:
-
-        #[cfg(target_endian = "big")]
-        #[must_use]
-        const fn inner(color: HexColor) -> u32 {
-            let (r, g, b, a) = color.split();
-            u32::from_ne_bytes([r, g, b, a])
-        }
-
-        #[cfg(target_endian = "little")]
-        #[must_use]
-        const fn inner(color: HexColor) -> u32 {
-            let (r, g, b, a) = color.split();
-            u32::from_ne_bytes([a, b, g, r])
-        }
-
-        inner(self)
+        let (r, g, b, a) = self.split_rgba();
+        u32::from_be_bytes([r, g, b, a])
     }
 
     /// Converts a `HexColor` into `[r, g, b, a]`.
@@ -889,7 +834,7 @@ impl HexColor {
     /// a)`.
     ///
     /// This primarily helps in cleaner deconstruction of `HexColor` instances,
-    /// especially if the variable bindings aren't the same as the `struct'`s
+    /// especially if the variable bindings aren't the same as the `struct`'s
     /// fields.
     ///
     /// # Examples
@@ -919,9 +864,82 @@ impl HexColor {
     /// ```
     #[must_use]
     #[inline]
+    #[deprecated = "use `HexColor::split_rgba` instead"]
     pub const fn split(self) -> (u8, u8, u8, u8) {
         let HexColor { r, g, b, a } = self;
         (r, g, b, a)
+    }
+
+    /// Deconstructs a `HexColor` into a tuple of its components: `(r, g, b,
+    /// a)`.
+    ///
+    /// This primarily helps in cleaner deconstruction of `HexColor` instances,
+    /// especially if the variable bindings aren't the same as the `struct`'s
+    /// fields.
+    ///
+    /// # Examples
+    ///
+    /// Basic usage:
+    ///
+    /// ```
+    /// use hex_color::HexColor;
+    ///
+    /// let slate_blue = HexColor::from_u24(0x6A5ACD);
+    /// let (red, green, blue, alpha) = slate_blue.split_rgba();
+    /// ```
+    ///
+    /// For contrast, here's what it would look like otherwise; it's not
+    /// terrible, but en masse, it's subjectively annoying:
+    ///
+    /// ```
+    /// use hex_color::HexColor;
+    ///
+    /// let slate_blue = HexColor::from_u24(0x6A5ACD);
+    /// let HexColor {
+    ///     r: red,
+    ///     g: green,
+    ///     b: blue,
+    ///     a: alpha,
+    /// } = slate_blue;
+    /// ```
+    #[must_use]
+    #[inline]
+    pub const fn split_rgba(self) -> (u8, u8, u8, u8) {
+        let HexColor { r, g, b, a } = self;
+        (r, g, b, a)
+    }
+
+    /// Deconstructs a `HexColor` into a tuple of its components: `(r, g, b)`.
+    ///
+    /// This primarily helps in cleaner deconstruction of `HexColor` instances,
+    /// especially if the variable bindings aren't the same as the `struct`'s
+    /// fields.
+    ///
+    /// # Examples
+    ///
+    /// Basic usage:
+    ///
+    /// ```
+    /// use hex_color::HexColor;
+    ///
+    /// let powder_blue = HexColor::from_u24(0xB6D0E2);
+    /// let (red, green, blue) = powder_blue.split_rgb();
+    /// ```
+    ///
+    /// For contrast, here's what it would look like otherwise; it's not
+    /// terrible, but en masse, it's subjectively annoying:
+    ///
+    /// ```
+    /// use hex_color::HexColor;
+    ///
+    /// let powder_blue = HexColor::from_u24(0xB6D0E2);
+    /// let HexColor { r: red, g: green, b: blue, .. } = powder_blue;
+    /// ```
+    #[must_use]
+    #[inline]
+    pub const fn split_rgb(self) -> (u8, u8, u8) {
+        let HexColor { r, g, b, .. } = self;
+        (r, g, b)
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -1569,6 +1587,46 @@ impl DivAssign for HexColor {
 ////////////////////////////////////////////////////////////////////////////////
 // Conversion traits
 ////////////////////////////////////////////////////////////////////////////////
+
+impl From<(u8, u8, u8)> for HexColor {
+    /// Constructs a new `HexColor` from a tuple of `(r, g, b)`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use hex_color::HexColor;
+    ///
+    /// let color = HexColor::from((0x00, 0x00, 0x00));
+    /// assert_eq!(color, HexColor::BLACK);
+    ///
+    /// let color = HexColor::from((0xFF, 0xFF, 0xFF));
+    /// assert_eq!(color, HexColor::WHITE);
+    /// ```
+    #[inline]
+    fn from((r, g, b): (u8, u8, u8)) -> Self {
+        HexColor::rgb(r, g, b)
+    }
+}
+
+impl From<(u8, u8, u8, u8)> for HexColor {
+    /// Constructs a new `HexColor` from a tuple of `(r, g, b, a)`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use hex_color::HexColor;
+    ///
+    /// let color = HexColor::from((0x00, 0x00, 0x00, 0x00));
+    /// assert_eq!(color, HexColor::BLACK.with_a(0x00));
+    ///
+    /// let color = HexColor::from((0xFF, 0xFF, 0xFF, 0xFF));
+    /// assert_eq!(color, HexColor::WHITE.with_a(0xFF));
+    /// ```
+    #[inline]
+    fn from((r, g, b, a): (u8, u8, u8, u8)) -> Self {
+        HexColor::rgba(r, g, b, a)
+    }
+}
 
 impl From<u32> for HexColor {
     /// Constructs a new `HexColor` from a `u32` via [`HexColor::from_u32`].
