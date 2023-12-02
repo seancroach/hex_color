@@ -775,7 +775,7 @@ impl HexColor {
     #[must_use]
     #[inline]
     pub const fn with_r(self, r: u8) -> HexColor {
-        let (_, g, b, a) = self.split();
+        let (_, g, b, a) = self.split_rgba();
         HexColor::rgba(r, g, b, a)
     }
 
@@ -792,7 +792,7 @@ impl HexColor {
     #[must_use]
     #[inline]
     pub const fn with_g(self, g: u8) -> HexColor {
-        let (r, _, b, a) = self.split();
+        let (r, _, b, a) = self.split_rgba();
         HexColor::rgba(r, g, b, a)
     }
 
@@ -809,7 +809,7 @@ impl HexColor {
     #[must_use]
     #[inline]
     pub const fn with_b(self, b: u8) -> HexColor {
-        let (r, g, _, a) = self.split();
+        let (r, g, _, a) = self.split_rgba();
         HexColor::rgba(r, g, b, a)
     }
 
@@ -826,7 +826,7 @@ impl HexColor {
     #[must_use]
     #[inline]
     pub const fn with_a(self, a: u8) -> HexColor {
-        let (r, g, b, _) = self.split();
+        let (r, g, b) = self.split_rgb();
         HexColor::rgba(r, g, b, a)
     }
 
@@ -969,8 +969,8 @@ impl HexColor {
     #[must_use]
     #[track_caller]
     pub const fn add(self, rhs: HexColor) -> HexColor {
-        let (r1, g1, b1, _) = self.split();
-        let (r2, g2, b2, _) = rhs.split();
+        let (r1, g1, b1) = self.split_rgb();
+        let (r2, g2, b2) = rhs.split_rgb();
         HexColor::rgb(r1 + r2, g1 + g2, b1 + b2)
     }
 
@@ -1026,8 +1026,8 @@ impl HexColor {
     #[inline]
     #[must_use]
     pub const fn overflowing_add(self, rhs: HexColor) -> (HexColor, bool) {
-        let (r1, g1, b1, _) = self.split();
-        let (r2, g2, b2, _) = rhs.split();
+        let (r1, g1, b1) = self.split_rgb();
+        let (r2, g2, b2) = rhs.split_rgb();
 
         let (r, r_flag) = r1.overflowing_add(r2);
         let (g, g_flag) = g1.overflowing_add(g2);
@@ -1054,8 +1054,8 @@ impl HexColor {
     #[inline]
     #[must_use]
     pub const fn saturating_add(self, rhs: HexColor) -> HexColor {
-        let (r1, g1, b1, _) = self.split();
-        let (r2, g2, b2, _) = rhs.split();
+        let (r1, g1, b1) = self.split_rgb();
+        let (r2, g2, b2) = rhs.split_rgb();
         HexColor::rgb(
             r1.saturating_add(r2),
             g1.saturating_add(g2),
@@ -1080,8 +1080,8 @@ impl HexColor {
     #[inline]
     #[must_use]
     pub const fn wrapping_add(self, rhs: HexColor) -> HexColor {
-        let (r1, g1, b1, _) = self.split();
-        let (r2, g2, b2, _) = rhs.split();
+        let (r1, g1, b1) = self.split_rgb();
+        let (r2, g2, b2) = rhs.split_rgb();
         HexColor::rgb(
             r1.wrapping_add(r2),
             g1.wrapping_add(g2),
@@ -1112,8 +1112,8 @@ impl HexColor {
     #[must_use]
     #[track_caller]
     pub const fn sub(self, rhs: HexColor) -> HexColor {
-        let (r1, g1, b1, _) = self.split();
-        let (r2, g2, b2, _) = rhs.split();
+        let (r1, g1, b1) = self.split_rgb();
+        let (r2, g2, b2) = rhs.split_rgb();
         HexColor::rgb(r1 - r2, g1 - g2, b1 - b2)
     }
 
@@ -1189,8 +1189,8 @@ impl HexColor {
     #[inline]
     #[must_use]
     pub const fn overflowing_sub(self, rhs: HexColor) -> (HexColor, bool) {
-        let (r1, g1, b1, _) = self.split();
-        let (r2, g2, b2, _) = rhs.split();
+        let (r1, g1, b1) = self.split_rgb();
+        let (r2, g2, b2) = rhs.split_rgb();
 
         let (r, r_flag) = r1.overflowing_sub(r2);
         let (g, g_flag) = g1.overflowing_sub(g2);
@@ -1217,8 +1217,8 @@ impl HexColor {
     #[inline]
     #[must_use]
     pub const fn saturating_sub(self, rhs: HexColor) -> HexColor {
-        let (r1, g1, b1, _) = self.split();
-        let (r2, g2, b2, _) = rhs.split();
+        let (r1, g1, b1) = self.split_rgb();
+        let (r2, g2, b2) = rhs.split_rgb();
         HexColor::rgb(
             r1.saturating_sub(r2),
             g1.saturating_sub(g2),
@@ -1243,8 +1243,8 @@ impl HexColor {
     #[inline]
     #[must_use]
     pub const fn wrapping_sub(self, rhs: HexColor) -> HexColor {
-        let (r1, g1, b1, _) = self.split();
-        let (r2, g2, b2, _) = rhs.split();
+        let (r1, g1, b1) = self.split_rgb();
+        let (r2, g2, b2) = rhs.split_rgb();
         HexColor::rgb(
             r1.wrapping_sub(r2),
             g1.wrapping_sub(g2),
@@ -1276,8 +1276,8 @@ impl HexColor {
     #[must_use]
     #[track_caller]
     pub const fn mul(self, rhs: HexColor) -> HexColor {
-        let (r1, g1, b1, _) = self.split();
-        let (r2, g2, b2, _) = rhs.split();
+        let (r1, g1, b1) = self.split_rgb();
+        let (r2, g2, b2) = rhs.split_rgb();
         HexColor::rgb(r1 * r2, g1 * g2, b1 * b2)
     }
 
@@ -1333,8 +1333,8 @@ impl HexColor {
     #[inline]
     #[must_use]
     pub const fn overflowing_mul(self, rhs: HexColor) -> (HexColor, bool) {
-        let (r1, g1, b1, _) = self.split();
-        let (r2, g2, b2, _) = rhs.split();
+        let (r1, g1, b1) = self.split_rgb();
+        let (r2, g2, b2) = rhs.split_rgb();
 
         let (r, r_flag) = r1.overflowing_mul(r2);
         let (g, g_flag) = g1.overflowing_mul(g2);
@@ -1363,8 +1363,8 @@ impl HexColor {
     #[inline]
     #[must_use]
     pub const fn saturating_mul(self, rhs: HexColor) -> HexColor {
-        let (r1, g1, b1, _) = self.split();
-        let (r2, g2, b2, _) = rhs.split();
+        let (r1, g1, b1) = self.split_rgb();
+        let (r2, g2, b2) = rhs.split_rgb();
         HexColor::rgb(
             r1.saturating_mul(r2),
             g1.saturating_mul(g2),
@@ -1392,8 +1392,8 @@ impl HexColor {
     #[inline]
     #[must_use]
     pub const fn wrapping_mul(self, rhs: HexColor) -> HexColor {
-        let (r1, g1, b1, _) = self.split();
-        let (r2, g2, b2, _) = rhs.split();
+        let (r1, g1, b1) = self.split_rgb();
+        let (r2, g2, b2) = rhs.split_rgb();
         HexColor::rgb(
             r1.wrapping_mul(r2),
             g1.wrapping_mul(g2),
@@ -1425,8 +1425,8 @@ impl HexColor {
     #[must_use]
     #[track_caller]
     pub const fn div(self, rhs: HexColor) -> HexColor {
-        let (r1, g1, b1, _) = self.split();
-        let (r2, g2, b2, _) = rhs.split();
+        let (r1, g1, b1) = self.split_rgb();
+        let (r2, g2, b2) = rhs.split_rgb();
         HexColor::rgb(r1 / r2, g1 / g2, b1 / b2)
     }
 
@@ -1450,8 +1450,8 @@ impl HexColor {
     #[inline]
     #[must_use]
     pub const fn checked_div(self, rhs: HexColor) -> Option<HexColor> {
-        let (r1, g1, b1, _) = self.split();
-        let (r2, g2, b2, _) = rhs.split();
+        let (r1, g1, b1) = self.split_rgb();
+        let (r2, g2, b2) = rhs.split_rgb();
         // TODO: Use `unlikely!` or some equivalent hint when stable.
         if r2 == 0 || g2 == 0 || b2 == 0 {
             None
@@ -1476,7 +1476,7 @@ impl HexColor {
     #[inline]
     #[must_use]
     pub const fn invert(self) -> HexColor {
-        let (r, g, b, a) = self.split();
+        let (r, g, b, a) = self.split_rgba();
         HexColor::rgba(0xFF - r, 0xFF - g, 0xFF - b, a)
     }
 }
@@ -1499,7 +1499,7 @@ impl Display for HexColor {
     /// assert_eq!(format!("{rgba:#}"), "#10203040");
     /// ```
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let (r, g, b, a) = self.split();
+        let (r, g, b, a) = self.split_rgba();
         write!(f, "#{r:02X}{g:02X}{b:02X}")?;
         if f.alternate() {
             write!(f, "{a:02X}")?;
