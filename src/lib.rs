@@ -1462,6 +1462,7 @@ impl HexColor {
     #[inline]
     #[must_use]
     #[track_caller]
+    #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
     pub fn scale(self, f: f32) -> Self {
         let (r, g, b, a) = self.split_rgba();
         let r = (f32::from(r) * f).min(255.0).round() as u8;
@@ -1605,6 +1606,7 @@ impl Mul<f64> for HexColor {
 
     #[inline]
     #[track_caller]
+    #[allow(clippy::cast_possible_truncation)]
     fn mul(self, rhs: f64) -> Self::Output {
         self.scale(rhs as f32)
     }
