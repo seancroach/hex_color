@@ -1588,26 +1588,6 @@ impl DivAssign for HexColor {
 // Conversion traits
 ////////////////////////////////////////////////////////////////////////////////
 
-impl From<(u8, u8, u8)> for HexColor {
-    /// Constructs a new `HexColor` from a tuple of `(r, g, b)`.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use hex_color::HexColor;
-    ///
-    /// let color = HexColor::from((0x00, 0x00, 0x00));
-    /// assert_eq!(color, HexColor::BLACK);
-    ///
-    /// let color = HexColor::from((0xFF, 0xFF, 0xFF));
-    /// assert_eq!(color, HexColor::WHITE);
-    /// ```
-    #[inline]
-    fn from((r, g, b): (u8, u8, u8)) -> Self {
-        HexColor::rgb(r, g, b)
-    }
-}
-
 impl From<(u8, u8, u8, u8)> for HexColor {
     /// Constructs a new `HexColor` from a tuple of `(r, g, b, a)`.
     ///
@@ -1616,17 +1596,83 @@ impl From<(u8, u8, u8, u8)> for HexColor {
     /// ```
     /// use hex_color::HexColor;
     ///
-    /// let color = HexColor::from((0x00, 0x00, 0x00, 0x00));
-    /// assert_eq!(color, HexColor::BLACK.with_a(0x00));
+    /// let brass = (0xE1, 0xC1, 0x6E, 0xFF);
+    /// let color = HexColor::from(brass);
     ///
-    /// let color = HexColor::from((0xFF, 0xFF, 0xFF, 0xFF));
-    /// assert_eq!(color, HexColor::WHITE.with_a(0xFF));
+    /// assert_eq!(color.r, 0xE1);
+    /// assert_eq!(color.g, 0xC1);
+    /// assert_eq!(color.b, 0x6E);
+    /// assert_eq!(color.a, 0xFF);
     /// ```
     #[inline]
     fn from((r, g, b, a): (u8, u8, u8, u8)) -> Self {
         HexColor::rgba(r, g, b, a)
     }
 }
+
+impl From<HexColor> for (u8, u8, u8, u8) {
+    /// Deconstructs a `HexColor` into a tuple of its components: `(r, g, b,
+    /// a)`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use hex_color::HexColor;
+    ///
+    /// let brass = HexColor::from_u24(0xE1C16E);
+    /// let (red, green, blue, alpha) = brass.into();
+    ///
+    /// assert_eq!(red, 0xE1);
+    /// assert_eq!(green, 0xC1);
+    /// assert_eq!(blue, 0x6E);
+    /// assert_eq!(alpha, 0xFF);
+    fn from(hex_color: HexColor) -> Self {
+        hex_color.split_rgba()
+    }
+}
+
+impl From<(u8, u8, u8)> for HexColor {
+    /// Constructs a new `HexColor` from a tuple of `(r, g, b)`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use hex_color::HexColor;
+    ///
+    /// let jade = (0x00, 0xA3, 0x6C);
+    /// let color = HexColor::from(jade);
+    ///
+    /// assert_eq!(color.r, 0x00);
+    /// assert_eq!(color.g, 0xA3);
+    /// assert_eq!(color.b, 0x6C);
+    /// ```
+    #[inline]
+    fn from((r, g, b): (u8, u8, u8)) -> Self {
+        HexColor::rgb(r, g, b)
+    }
+}
+
+impl From<HexColor> for (u8, u8, u8) {
+    /// Deconstructs a `HexColor` into a tuple of its components: `(r, g, b)`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use hex_color::HexColor;
+    ///
+    /// let jade = HexColor::from_u24(0x00A36C);
+    /// let (red, green, blue) = jade.into();
+    ///
+    /// assert_eq!(red, 0x00);
+    /// assert_eq!(green, 0xA3);
+    /// assert_eq!(blue, 0x6C);
+    /// ```
+    #[inline]
+    fn from(hex_color: HexColor) -> Self {
+        hex_color.split_rgb()
+    }
+}
+
 
 impl From<u32> for HexColor {
     /// Constructs a new `HexColor` from a `u32` via [`HexColor::from_u32`].
