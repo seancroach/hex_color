@@ -6,15 +6,13 @@
     clippy::missing_errors_doc
 )]
 
-use crate::{HexColor, ParseMode};
-
 use core::fmt::{self, Write};
 
 use arrayvec::ArrayString;
-use serde::{
-    de::{Error, Unexpected, Visitor},
-    Deserialize, Deserializer, Serialize, Serializer,
-};
+use serde::de::{Error, Unexpected, Visitor};
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
+
+use crate::{HexColor, ParseMode};
 
 impl HexColor {
     fn to_rgb_string(self) -> ArrayString<7> {
@@ -159,10 +157,10 @@ impl<'de> Visitor<'de> for HexColorNumberVisitor {
 /// ```
 #[cfg_attr(doc_cfg, doc(cfg(feature = "serde")))]
 pub mod rgb {
+    use serde::{Deserializer, Serializer};
+
     use super::HexColorStringVisitor;
     use crate::{HexColor, ParseMode};
-
-    use serde::{Deserializer, Serializer};
 
     /// Deserializes a [`HexColor`] from a string using the same rules as
     /// [`HexColor::parse_rgb`].
@@ -299,10 +297,10 @@ pub mod rgb {
 /// ```
 #[cfg_attr(doc_cfg, doc(cfg(feature = "serde")))]
 pub mod rgba {
+    use serde::{Deserializer, Serializer};
+
     use super::HexColorStringVisitor;
     use crate::{HexColor, ParseMode};
-
-    use serde::{Deserializer, Serializer};
 
     /// Deserializes a [`HexColor`] from a string using the same rules as
     /// [`HexColor::parse_rgba`].
@@ -440,10 +438,10 @@ pub mod rgba {
 /// ```
 #[cfg_attr(doc_cfg, doc(cfg(feature = "serde")))]
 pub mod u24 {
+    use serde::{Deserializer, Serializer};
+
     use super::{HexColorNumberVisitor, NumberMode};
     use crate::HexColor;
-
-    use serde::{Deserializer, Serializer};
 
     /// Deserializes a [`HexColor`] from a `u32` in the range
     /// `0x0000_0000..=0x00FF_FFFF`.
@@ -581,10 +579,10 @@ pub mod u24 {
 /// ```
 #[cfg_attr(doc_cfg, doc(cfg(feature = "serde")))]
 pub mod u32 {
+    use serde::{Deserializer, Serializer};
+
     use super::{HexColorNumberVisitor, NumberMode};
     use crate::HexColor;
-
-    use serde::{Deserializer, Serializer};
 
     /// Deserializes a [`HexColor`] from a `u32`.
     ///

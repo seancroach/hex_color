@@ -43,13 +43,11 @@
 //! use hex_color::HexColor;
 //!
 //! let violet = HexColor::rgb(238, 130, 238);
-//! let transparent_maroon= HexColor::rgba(128, 0, 0, 128);
+//! let transparent_maroon = HexColor::rgba(128, 0, 0, 128);
 //! let transparent_gray = HexColor::GRAY.with_a(128);
 //! let lavender = HexColor::from_u24(0x00E6_E6FA);
 //! let transparent_lavender = HexColor::from_u32(0xE6E6_FA80);
-//! let floral_white = HexColor::WHITE
-//!     .with_g(250)
-//!     .with_b(240);
+//! let floral_white = HexColor::WHITE.with_g(250).with_b(240);
 //! ```
 //!
 //! Comprehensive arithmetic:
@@ -191,15 +189,13 @@ mod rand;
 #[cfg(feature = "serde")]
 mod serde;
 
+use core::fmt::{self, Debug, Display};
+use core::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
+use core::str::{Bytes, FromStr};
+
 #[cfg(feature = "serde")]
 #[doc(inline)]
 pub use self::serde::{rgb, rgba, u24, u32};
-
-use core::{
-    fmt::{self, Debug, Display},
-    ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign},
-    str::{Bytes, FromStr},
-};
 
 /// An RGBA color.
 ///
@@ -217,46 +213,34 @@ pub struct HexColor {
 }
 
 impl HexColor {
+    /// Solid black. RGBA is `(0, 0, 0, 255)`.
+    pub const BLACK: HexColor = HexColor::rgb(0, 0, 0);
+    /// Solid blue. RGBA is `(0, 0, 255, 255)`.
+    pub const BLUE: HexColor = HexColor::rgb(0, 0, 255);
+    /// Completely transparent. RGBA is `(0, 0, 0, 0)`.
+    pub const CLEAR: HexColor = HexColor::rgba(0, 0, 0, 0);
+    /// Solid cyan. RGBA is `(0, 255, 255, 255)`.
+    pub const CYAN: HexColor = HexColor::rgb(0, 255, 255);
+    /// Solid gray; American spelling of grey. RGBA is `(128, 128, 128, 255)`.
+    pub const GRAY: HexColor = HexColor::achromatic(128);
+    /// Solid green. RGBA is `(0, 0, 255, 255)`.
+    pub const GREEN: HexColor = HexColor::rgb(0, 255, 0);
+    /// Solid grey; British spelling of gray. RGBA is `(128, 128, 128, 255)`.
+    pub const GREY: HexColor = HexColor::achromatic(128);
+    /// Solid magenta. RGBA is `(255, 0, 255, 255)`.
+    pub const MAGENTA: HexColor = HexColor::rgb(255, 0, 255);
+    /// The maximum possible value. RGBA is `(255, 255, 255, 255)`.
+    pub const MAX: HexColor = HexColor::from_u32(0xFFFF_FFFF);
     ////////////////////////////////////////////////////////////////////////////
     // Basic colors
     ////////////////////////////////////////////////////////////////////////////
 
     /// The minimum possible value. RGBA is `(0, 0, 0, 0)`.
     pub const MIN: HexColor = HexColor::from_u32(0x0000_0000);
-
-    /// The maximum possible value. RGBA is `(255, 255, 255, 255)`.
-    pub const MAX: HexColor = HexColor::from_u32(0xFFFF_FFFF);
-
-    /// Solid black. RGBA is `(0, 0, 0, 255)`.
-    pub const BLACK: HexColor = HexColor::rgb(0, 0, 0);
-
-    /// Solid blue. RGBA is `(0, 0, 255, 255)`.
-    pub const BLUE: HexColor = HexColor::rgb(0, 0, 255);
-
-    /// Completely transparent. RGBA is `(0, 0, 0, 0)`.
-    pub const CLEAR: HexColor = HexColor::rgba(0, 0, 0, 0);
-
-    /// Solid cyan. RGBA is `(0, 255, 255, 255)`.
-    pub const CYAN: HexColor = HexColor::rgb(0, 255, 255);
-
-    /// Solid gray; American spelling of grey. RGBA is `(128, 128, 128, 255)`.
-    pub const GRAY: HexColor = HexColor::achromatic(128);
-
-    /// Solid green. RGBA is `(0, 0, 255, 255)`.
-    pub const GREEN: HexColor = HexColor::rgb(0, 255, 0);
-
-    /// Solid grey; British spelling of gray. RGBA is `(128, 128, 128, 255)`.
-    pub const GREY: HexColor = HexColor::achromatic(128);
-
-    /// Solid magenta. RGBA is `(255, 0, 255, 255)`.
-    pub const MAGENTA: HexColor = HexColor::rgb(255, 0, 255);
-
     /// Solid red. RGBA is `(255, 0, 0, 255)`.
     pub const RED: HexColor = HexColor::rgb(255, 0, 0);
-
     /// Solid white. RGBA is `(255, 255, 255, 255)`.
     pub const WHITE: HexColor = HexColor::rgb(255, 255, 255);
-
     /// Solid yellow. RGBA is `(255, 255, 0, 255)`.
     pub const YELLOW: HexColor = HexColor::rgb(255, 255, 0);
 
@@ -933,7 +917,12 @@ impl HexColor {
     /// use hex_color::HexColor;
     ///
     /// let powder_blue = HexColor::from_u24(0xB6D0E2);
-    /// let HexColor { r: red, g: green, b: blue, .. } = powder_blue;
+    /// let HexColor {
+    ///     r: red,
+    ///     g: green,
+    ///     b: blue,
+    ///     ..
+    /// } = powder_blue;
     /// ```
     #[must_use]
     #[inline]
@@ -1014,10 +1003,7 @@ impl HexColor {
     /// let almost_white = HexColor::achromatic(254);
     /// let one = HexColor::achromatic(1);
     ///
-    /// assert_eq!(
-    ///     almost_white.overflowing_add(one),
-    ///     (HexColor::WHITE, false),
-    /// );
+    /// assert_eq!(almost_white.overflowing_add(one), (HexColor::WHITE, false),);
     /// assert_eq!(
     ///     HexColor::WHITE.overflowing_add(one),
     ///     (HexColor::BLACK, true),
@@ -1177,10 +1163,7 @@ impl HexColor {
     /// let almost_black = HexColor::achromatic(1);
     /// let one = HexColor::achromatic(1);
     ///
-    /// assert_eq!(
-    ///     almost_black.overflowing_sub(one),
-    ///     (HexColor::BLACK, false),
-    /// );
+    /// assert_eq!(almost_black.overflowing_sub(one), (HexColor::BLACK, false),);
     /// assert_eq!(
     ///     HexColor::BLACK.overflowing_sub(one),
     ///     (HexColor::WHITE, true),
@@ -1293,10 +1276,7 @@ impl HexColor {
     ///     HexColor::achromatic(5).checked_mul(HexColor::achromatic(2)),
     ///     Some(HexColor::achromatic(10)),
     /// );
-    /// assert_eq!(
-    ///     HexColor::MAX.checked_mul(HexColor::achromatic(2)),
-    ///     None,
-    /// );
+    /// assert_eq!(HexColor::MAX.checked_mul(HexColor::achromatic(2)), None,);
     /// ```
     #[inline]
     #[must_use]
@@ -1442,10 +1422,7 @@ impl HexColor {
     ///     HexColor::achromatic(128).checked_div(HexColor::achromatic(2)),
     ///     Some(HexColor::achromatic(64)),
     /// );
-    /// assert_eq!(
-    ///     HexColor::WHITE.checked_div(HexColor::achromatic(0)),
-    ///     None,
-    /// );
+    /// assert_eq!(HexColor::WHITE.checked_div(HexColor::achromatic(0)), None,);
     /// ```
     #[inline]
     #[must_use]
@@ -1757,7 +1734,6 @@ impl From<HexColor> for (u8, u8, u8) {
         hex_color.split_rgb()
     }
 }
-
 
 impl From<u32> for HexColor {
     /// Constructs a new `HexColor` from a `u32` via [`HexColor::from_u32`].

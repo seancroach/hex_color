@@ -1,9 +1,7 @@
-use crate::HexColor;
+use rand::distributions::{Distribution, Standard};
+use rand::Rng;
 
-use rand::{
-    distributions::{Distribution, Standard},
-    Rng,
-};
+use crate::HexColor;
 
 #[cfg_attr(doc_cfg, doc(cfg(feature = "rand")))]
 impl Distribution<HexColor> for Standard {
