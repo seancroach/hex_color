@@ -17,13 +17,13 @@ use crate::{HexColor, ParseMode};
 impl HexColor {
     fn to_rgb_string(self) -> ArrayString<7> {
         let mut string = ArrayString::new();
-        unsafe { write!(string, "{self}").unwrap_unchecked() };
+        unsafe { write!(string, "{}", self.display_rgb()).unwrap_unchecked() };
         string
     }
 
     fn to_rgba_string(self) -> ArrayString<9> {
         let mut string = ArrayString::new();
-        unsafe { write!(string, "{self:#}").unwrap_unchecked() };
+        unsafe { write!(string, "{}", self.display_rgba()).unwrap_unchecked() };
         string
     }
 }

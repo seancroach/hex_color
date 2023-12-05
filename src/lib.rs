@@ -189,7 +189,7 @@ mod rand;
 #[cfg(feature = "serde")]
 mod serde;
 
-use core::fmt::{self, Debug, Display};
+use core::fmt;
 use core::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
 use core::str::{Bytes, FromStr};
 
@@ -323,7 +323,7 @@ impl HexColor {
     /// ```
     /// use hex_color::HexColor;
     ///
-    /// println!("{}", HexColor::random_rgb());
+    /// println!("{}", HexColor::random_rgb().display_rgb());
     /// ```
     #[cfg(all(feature = "rand", feature = "std"))]
     #[cfg_attr(doc_cfg, doc(cfg(all(feature = "rand", feature = "std"))))]
@@ -342,7 +342,7 @@ impl HexColor {
     /// ```
     /// use hex_color::HexColor;
     ///
-    /// println!("{:#}", HexColor::random_rgba());
+    /// println!("{}", HexColor::random_rgba().display_rgba());
     /// ```
     #[cfg(all(feature = "rand", feature = "std"))]
     #[cfg_attr(doc_cfg, doc(cfg(all(feature = "rand", feature = "std"))))]
@@ -932,6 +932,50 @@ impl HexColor {
     }
 
     ////////////////////////////////////////////////////////////////////////////
+    // Display
+    ////////////////////////////////////////////////////////////////////////////
+
+    /// Returns an object that implements [`fmt::Display`] for `HexColor`. By
+    /// default, the alpha channel is hidden and the letters are uppercase.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use hex_color::HexColor;
+    ///
+    /// let display_red = HexColor::RED.display_rgb();
+    /// assert_eq!(format!("{display_red}"), "#FF0000");
+    /// ```
+    ///
+    /// For more control over the display, see [`Display::with_alpha`] and
+    /// [`Display::with_case`].
+    #[must_use]
+    #[inline]
+    pub const fn display_rgb(self) -> Display {
+        Display::new(self).with_alpha(Alpha::Hidden)
+    }
+
+    /// Returns an object that implements [`fmt::Display`] for `HexColor`. By
+    /// default, the alpha channel is visible and the letters are uppercase.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use hex_color::HexColor;
+    ///
+    /// let display_red = HexColor::RED.display_rgba();
+    /// assert_eq!(format!("{display_red}"), "#FF0000FF");
+    /// ```
+    ///
+    /// For more control over the display, see [`Display::with_alpha`] and
+    /// [`Display::with_case`].
+    #[must_use]
+    #[inline]
+    pub const fn display_rgba(self) -> Display {
+        Display::new(self).with_alpha(Alpha::Visible)
+    }
+
+    ////////////////////////////////////////////////////////////////////////////
     // Arithmetic operations
     ////////////////////////////////////////////////////////////////////////////
 
@@ -1488,33 +1532,6 @@ impl HexColor {
     }
 }
 
-impl Display for HexColor {
-    /// Display the `HexColor` as a hexadecimal value.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use hex_color::HexColor;
-    ///
-    /// let rgba = HexColor::rgba(16, 32, 48, 64);
-    ///
-    /// // By default it displays only a typical uppercase hexadecimal triplet
-    /// // even if the alpha is not fully opaque:
-    /// assert_eq!(format!("{rgba}"), "#102030");
-    ///
-    /// // To display the alpha component, too, use the alternate flag:
-    /// assert_eq!(format!("{rgba:#}"), "#10203040");
-    /// ```
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let (r, g, b, a) = self.split_rgba();
-        write!(f, "#{r:02X}{g:02X}{b:02X}")?;
-        if f.alternate() {
-            write!(f, "{a:02X}")?;
-        }
-        Ok(())
-    }
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 // Arithmetic traits
 ////////////////////////////////////////////////////////////////////////////////
@@ -1753,6 +1770,10 @@ impl From<HexColor> for u32 {
     }
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// Parsing Details
+////////////////////////////////////////////////////////////////////////////////
+
 impl FromStr for HexColor {
     type Err = ParseHexColorError;
 
@@ -1770,6 +1791,149 @@ enum ParseMode {
     Rgb,
     Rgba,
 }
+
+////////////////////////////////////////////////////////////////////////////////
+// Display
+////////////////////////////////////////////////////////////////////////////////
+
+/// Helper struct for printing [`HexColor`] objects with [`format!`] and `{}`.
+///
+/// [`format!`]: https://doc.rust-lang.org/alloc/macro.format.html
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub struct Display {
+    color: HexColor,
+    alpha: Alpha,
+    case: Case,
+}
+
+impl Display {
+    /// Constructs a new `Display` from a [`HexColor`]. By default, the alpha
+    /// channel is hidden and the letters are uppercase.
+    ///
+    /// # Examples  
+    ///
+    /// ```
+    /// use hex_color::{Display, HexColor};
+    ///
+    /// let gainsboro = HexColor::from_u24(0xDCDCDC);
+    /// let display = Display::new(gainsboro);
+    ///
+    /// assert_eq!(format!("{display}"), "#DCDCDC");
+    /// ```
+    ///
+    /// Consider using [`HexColor::display_rgb`] or [`HexColor::display_rgba`]
+    /// if it's more convenient.
+    #[must_use]
+    #[inline]
+    pub const fn new(color: HexColor) -> Self {
+        Self {
+            color,
+            alpha: Alpha::Hidden,
+            case: Case::Upper,
+        }
+    }
+
+    /// Creates a new `Display` with the given [`Alpha`] display option.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use hex_color::{Alpha, Display, HexColor};
+    ///
+    /// let transparent_gainsboro = HexColor::from_u32(0x7080907F);
+    /// let display = Display::new(transparent_gainsboro).with_alpha(Alpha::Visible);
+    ///
+    /// assert_eq!(format!("{display}"), "#7080907F");
+    /// ```
+    #[must_use]
+    #[inline]
+    pub const fn with_alpha(mut self, alpha: Alpha) -> Self {
+        self.alpha = alpha;
+        self
+    }
+
+    /// Creates a new `Display` with the given [`Case`] display option.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use hex_color::{HexColor, Display, Case};
+    ///
+    /// let gainsboro = HexColor::from_u24(0xDCDCDC);
+    /// let display = Display::new(gainsboro).with_case(Case::Lower);
+    ///
+    /// assert_eq!(format!("{display}"), "#dcdcdc");
+    #[must_use]
+    #[inline]
+    pub const fn with_case(mut self, case: Case) -> Self {
+        self.case = case;
+        self
+    }
+
+    /// Returns the [`HexColor`] that this `Display` was created from.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use hex_color::HexColor;
+    ///
+    /// let transparent_lavender_blush = HexColor::from_u32(0xFFF0F57F);
+    /// let display = transparent_lavender_blush.display_rgb();
+    ///
+    /// assert_eq!(display.color(), transparent_lavender_blush);
+    /// ```
+    #[must_use]
+    #[inline]
+    pub const fn color(self) -> HexColor {
+        self.color
+    }
+}
+
+impl fmt::Display for Display {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let (r, g, b) = self.color.split_rgb();
+
+        match self.case {
+            Case::Lower => write!(f, "#{r:02x}{g:02x}{b:02x}")?,
+            Case::Upper => write!(f, "#{r:02X}{g:02X}{b:02X}")?,
+        }
+
+        if self.alpha == Alpha::Visible {
+            let a = self.color.a;
+            match self.case {
+                Case::Lower => write!(f, "{a:02x}")?,
+                Case::Upper => write!(f, "{a:02X}")?,
+            }
+        }
+
+        Ok(())
+    }
+}
+
+/// An option for whether or not to display the alpha channel when displaying a
+/// hexadecimal color.
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Default)]
+pub enum Alpha {
+    /// When displaying hexadecimal colors, do not display the alpha channel.
+    #[default]
+    Hidden,
+    /// When displaying hexadecimal colors, display the alpha channel.
+    Visible,
+}
+
+/// The case of the letters to use when displaying a hexadecimal color.
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Default)]
+pub enum Case {
+    /// When displaying hexadecimal colors, use lowercase letters.
+    Lower,
+    /// When displaying hexadecimal colors, use uppercase letters.
+    #[default]
+    Upper,
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Errors
+////////////////////////////////////////////////////////////////////////////////
 
 /// An error which can be returned when parsing a hex color.
 ///
@@ -1791,7 +1955,7 @@ pub enum ParseHexColorError {
     InvalidDigit,
 }
 
-impl Display for ParseHexColorError {
+impl fmt::Display for ParseHexColorError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let data = match self {
             ParseHexColorError::Empty => "cannot parse hex color from empty string",
