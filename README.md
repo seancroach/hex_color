@@ -22,7 +22,7 @@ to your dependencies in your project's `Cargo.toml`:
 
 ```toml
 [dependencies]
-hex_color = "2"
+hex_color = "3"
 ```
 
 [crates]: https://crates.io/crates/hex_color

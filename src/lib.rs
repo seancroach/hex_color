@@ -7,7 +7,7 @@
 //!
 //! ```toml
 //! [dependencies]
-//! hex_color = "2"
+//! hex_color = "3"
 //! ```
 //!
 //! [crates]: https://crates.io/crates/hex_color
@@ -177,7 +177,7 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 // hex_color types in rustdoc of other crates get linked to here
-#![doc(html_root_url = "https://docs.rs/hex_color/2.1.0")]
+#![doc(html_root_url = "https://docs.rs/hex_color/3.0.0")]
 #![cfg_attr(doc_cfg, feature(doc_cfg))]
 #![deny(missing_docs)]
 #![deny(clippy::pedantic)]
