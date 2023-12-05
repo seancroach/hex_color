@@ -829,46 +829,6 @@ impl HexColor {
     /// use hex_color::HexColor;
     ///
     /// let slate_blue = HexColor::from_u24(0x6A5ACD);
-    /// let (red, green, blue, alpha) = slate_blue.split();
-    /// ```
-    ///
-    /// For contrast, here's what it would look like otherwise; it's not
-    /// terrible, but en masse, it's subjectively annoying:
-    ///
-    /// ```
-    /// use hex_color::HexColor;
-    ///
-    /// let slate_blue = HexColor::from_u24(0x6A5ACD);
-    /// let HexColor {
-    ///     r: red,
-    ///     g: green,
-    ///     b: blue,
-    ///     a: alpha,
-    /// } = slate_blue;
-    /// ```
-    #[must_use]
-    #[inline]
-    #[deprecated = "use `HexColor::split_rgba` instead"]
-    pub const fn split(self) -> (u8, u8, u8, u8) {
-        let HexColor { r, g, b, a } = self;
-        (r, g, b, a)
-    }
-
-    /// Deconstructs a `HexColor` into a tuple of its components: `(r, g, b,
-    /// a)`.
-    ///
-    /// This primarily helps in cleaner deconstruction of `HexColor` instances,
-    /// especially if the variable bindings aren't the same as the `struct`'s
-    /// fields.
-    ///
-    /// # Examples
-    ///
-    /// Basic usage:
-    ///
-    /// ```
-    /// use hex_color::HexColor;
-    ///
-    /// let slate_blue = HexColor::from_u24(0x6A5ACD);
     /// let (red, green, blue, alpha) = slate_blue.split_rgba();
     /// ```
     ///
