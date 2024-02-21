@@ -7,6 +7,11 @@ use crate::HexColor;
 impl Distribution<HexColor> for Standard {
     #[inline]
     fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> HexColor {
-        HexColor::rgb(rng.gen(), rng.gen(), rng.gen())
+        let u = rng.next_u32();
+        HexColor::rgb(
+            (u & 0xff) as u8,
+            ((u >> 8) & 0xff) as u8,
+            ((u >> 16) & 0xff) as u8,
+        )
     }
 }
