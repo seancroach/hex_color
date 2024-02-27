@@ -1,4 +1,4 @@
-// All of the casts are validated and the "error" sections for all of these
+// All the casts are validated and the "error" sections for all of these
 // functions is equally too nebulous while also self-evident.
 #![allow(
     clippy::cast_possible_truncation,
@@ -51,8 +51,8 @@ impl<'de> Visitor<'de> for HexColorStringVisitor {
     }
 
     fn visit_str<E>(self, s: &str) -> Result<Self::Value, E>
-    where
-        E: Error,
+        where
+            E: Error,
     {
         HexColor::parse_internals(s, self.mode)
             .map_err(|_| E::invalid_value(Unexpected::Str(s), &self))
@@ -86,8 +86,8 @@ impl<'de> Visitor<'de> for HexColorNumberVisitor {
     }
 
     fn visit_i64<E>(self, n: i64) -> Result<Self::Value, E>
-    where
-        E: Error,
+        where
+            E: Error,
     {
         if n < 0x0000_0000 {
             return Err(E::invalid_type(Unexpected::Signed(n), &self));
@@ -101,8 +101,8 @@ impl<'de> Visitor<'de> for HexColorNumberVisitor {
     }
 
     fn visit_u64<E>(self, n: u64) -> Result<Self::Value, E>
-    where
-        E: Error,
+        where
+            E: Error,
     {
         match self.mode {
             NumberMode::U24 if n <= 0x00FF_FFFF => Ok(HexColor::from_u24(n as u32)),
@@ -201,8 +201,8 @@ pub mod rgb {
     /// ```
     #[inline]
     pub fn deserialize<'de, D>(deserializer: D) -> Result<HexColor, D::Error>
-    where
-        D: Deserializer<'de>,
+        where
+            D: Deserializer<'de>,
     {
         deserializer.deserialize_str(HexColorStringVisitor::new(ParseMode::Rgb))
     }
@@ -245,8 +245,8 @@ pub mod rgb {
     /// ```
     #[inline]
     pub fn serialize<S>(color: &HexColor, s: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
+        where
+            S: Serializer,
     {
         s.serialize_str(&color.to_rgb_string())
     }
@@ -341,8 +341,8 @@ pub mod rgba {
     /// ```
     #[inline]
     pub fn deserialize<'de, D>(deserializer: D) -> Result<HexColor, D::Error>
-    where
-        D: Deserializer<'de>,
+        where
+            D: Deserializer<'de>,
     {
         deserializer.deserialize_str(HexColorStringVisitor::new(ParseMode::Rgba))
     }
@@ -385,8 +385,8 @@ pub mod rgba {
     /// ```
     #[inline]
     pub fn serialize<S>(color: &HexColor, s: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
+        where
+            S: Serializer,
     {
         s.serialize_str(&color.to_rgba_string())
     }
@@ -482,8 +482,8 @@ pub mod u24 {
     /// ```
     #[inline]
     pub fn deserialize<'de, D>(deserializer: D) -> Result<HexColor, D::Error>
-    where
-        D: Deserializer<'de>,
+        where
+            D: Deserializer<'de>,
     {
         deserializer.deserialize_u64(HexColorNumberVisitor::new(NumberMode::U24))
     }
@@ -527,8 +527,8 @@ pub mod u24 {
     /// ```
     #[inline]
     pub fn serialize<S>(color: &HexColor, s: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
+        where
+            S: Serializer,
     {
         s.serialize_u32(color.to_u24())
     }
@@ -622,8 +622,8 @@ pub mod u32 {
     /// ```
     #[inline]
     pub fn deserialize<'de, D>(deserializer: D) -> Result<HexColor, D::Error>
-    where
-        D: Deserializer<'de>,
+        where
+            D: Deserializer<'de>,
     {
         deserializer.deserialize_u64(HexColorNumberVisitor::new(NumberMode::U32))
     }
@@ -666,8 +666,8 @@ pub mod u32 {
     /// ```
     #[inline]
     pub fn serialize<S>(color: &HexColor, s: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
+        where
+            S: Serializer,
     {
         s.serialize_u32(color.to_u32())
     }
@@ -722,8 +722,8 @@ impl<'de> Deserialize<'de> for HexColor {
     /// # }
     /// ```
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: Deserializer<'de>,
+        where
+            D: Deserializer<'de>,
     {
         deserializer.deserialize_str(HexColorStringVisitor::new(ParseMode::Any))
     }
@@ -783,8 +783,8 @@ impl Serialize for HexColor {
     /// # }
     /// ```
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
+        where
+            S: Serializer,
     {
         if self.a == u8::MAX {
             serializer.serialize_str(&self.to_rgb_string())

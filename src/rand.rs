@@ -6,12 +6,8 @@ use crate::HexColor;
 #[cfg_attr(doc_cfg, doc(cfg(feature = "rand")))]
 impl Distribution<HexColor> for Standard {
     #[inline]
-    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> HexColor {
-        let u = rng.next_u32();
-        HexColor::rgb(
-            (u & 0xff) as u8,
-            ((u >> 8) & 0xff) as u8,
-            ((u >> 16) & 0xff) as u8,
-        )
+    fn sample<R>(&self, rng: &mut R) -> HexColor where R: ?Sized + Rng {
+        let [r, g, b, _] = rng.next_u32().to_ne_bytes();
+        HexColor::rgb(r, g, b)
     }
 }
