@@ -159,8 +159,6 @@ impl<'de> Visitor<'de> for HexColorNumberVisitor {
 pub mod rgb {
     use serde::{Deserializer, Serializer};
 
-    use schemars::JsonSchema;
-
     use super::HexColorStringVisitor;
     use crate::{HexColor, ParseMode};
 
