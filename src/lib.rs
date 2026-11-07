@@ -186,6 +186,8 @@
 
 #[cfg(feature = "rand")]
 mod rand;
+#[cfg(feature = "schemars")]
+mod schemars;
 #[cfg(feature = "serde")]
 mod serde;
 
@@ -1766,7 +1768,7 @@ impl Display {
     /// Constructs a new `Display` from a [`HexColor`]. By default, the alpha
     /// channel is hidden and the letters are uppercase.
     ///
-    /// # Examples  
+    /// # Examples
     ///
     /// ```
     /// use hex_color::{Display, HexColor};
